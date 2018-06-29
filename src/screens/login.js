@@ -41,8 +41,8 @@ class Login extends Component {
     super(props);
 
     this.state = {
-      email: '',
-      password: '',
+      // email: '',
+      // password: '',
       fontLoaded: true,
       selectedCategory: 0,
       isLoading: false,
@@ -72,8 +72,8 @@ class Login extends Component {
   login() {
     const {
       email,
-      password,
-    } = this.state;
+      password
+    } = this.props;
     this.setState({ isLoading: true });
     LayoutAnimation.easeInEaseOut();
     this.setState({
@@ -90,10 +90,14 @@ class Login extends Component {
 
   signUp() {
     const {
-      email,
-      password,
       passwordConfirmation,
     } = this.state;
+
+    const {
+      email,
+      password
+    } = this.props;
+
     this.setState({ isLoading: true });
 
     LayoutAnimation.easeInEaseOut();
@@ -130,7 +134,7 @@ class Login extends Component {
     const {
       email,
       password,
-    } = this.state;
+    } = this.props;
 
     const isLoginPage = selectedCategory === 0;
     const isSignUpPage = selectedCategory === 1;
@@ -194,7 +198,7 @@ class Login extends Component {
                     containerStyle={{borderBottomColor: 'rgba(0, 0, 0, 0.38)'}}
                     ref={input => this.emailInput = input}
                     onSubmitEditing={() => this.passwordInput.focus()}
-                    onChangeText={email => this.setState({ email })}
+                    onChangeText={email => this.props.dispatch({ type:'SET_EMAIL', email })}
                     errorMessage={isEmailValid ? null : 'Please enter a valid email address'}
                   />
                   <Input
@@ -218,7 +222,7 @@ class Login extends Component {
                     placeholder={'Password'}
                     ref={input => this.passwordInput = input}
                     onSubmitEditing={() => isSignUpPage ? this.confirmationInput.focus() : this.login()}
-                    onChangeText={(password) => this.setState({password})}
+                    onChangeText={(password) => this.props.dispatch({ type: 'SET_PASSWORD', password})}
                     errorMessage={isPasswordValid ? null : 'Please enter at least 8 characters'}
                   />
                   {isSignUpPage &&
@@ -280,8 +284,8 @@ class Login extends Component {
 
 function mapStateToProps(state) {
   return {
-    email: state.email,
-    password: state.password
+    email: state.email || '',
+    password: state.password || ''
   };
 }
 
