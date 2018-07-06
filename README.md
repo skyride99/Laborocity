@@ -2,7 +2,7 @@
 - dont forget to run
 npm i
 
-- also dont forget to link libraies
+**also dont forget to link libraies**
 react-native link react-native-vector-icons
 react-native link amazon-cognito-identity-js
 
