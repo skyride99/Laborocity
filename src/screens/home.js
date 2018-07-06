@@ -35,9 +35,12 @@ export default class App extends Component {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude
           })
-       })
-
-    }
+       },
+      (error) => {
+        console.log(JSON.stringify(error));
+      },
+      {enableHighAccuracy: true, timeout: 6000, maximumAge: 1000}
+     )}
 
     render() {
         return (
