@@ -28,6 +28,31 @@ export default class App extends Component {
       longitude: ''
     }
 
+    componentDidMount(){
+      PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+          .then(grantedPreviously => {
+
+              const rationale = {
+                  title: 'Location Access',
+                  message: 'Need for detect your location to select location nearby you easily',
+                  buttonNeutral: 'Ask Me Later',
+                  buttonNegative: 'Cancel',
+                  buttonPositive: 'OK'
+              };
+
+              if (grantedPreviously) {
+                  PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, rationale)
+                      .then(granted => {
+                          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                              console.log('permission granted');
+                          } else {
+                            console.log('permission rejected');
+                          }
+                      }).catch( e => console.log(e))
+              }
+          }).catch(e => console.log(e))
+    }
+
     onMessage = (m)=> {
       navigator.geolocation.getCurrentPosition(
        (position) => {
@@ -37,9 +62,10 @@ export default class App extends Component {
           })
        },
       (error) => {
+        alert(JSON.stringify(error));
         console.log(JSON.stringify(error));
       },
-      {enableHighAccuracy: true, timeout: 6000, maximumAge: 1000}
+      {enableHighAccuracy: true, timeout: 6000}
      )}
 
     render() {
