@@ -40,7 +40,7 @@ export default class App extends Component {
                   buttonPositive: 'OK'
               };
 
-              if (grantedPreviously) {
+              if (!grantedPreviously) {
                   PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, rationale)
                       .then(granted => {
                           if (granted === PermissionsAndroid.RESULTS.GRANTED) {
