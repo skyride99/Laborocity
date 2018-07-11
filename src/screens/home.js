@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { WebView, View, PermissionsAndroid, Button  } from 'react-native';
+import { WebView, View, PermissionsAndroid, Button, Platform  } from 'react-native';
 import {Text} from 'react-native-elements';
 
 const html = `
@@ -17,6 +17,7 @@ const html = `
 
       function myFunction(){
         window.location.hash = false;
+        window.postMessage('Yeah', '*');
       }
     </script>
     </html>
@@ -29,6 +30,47 @@ export default class App extends Component {
       longitude: ''
     }
 
+    componentDidMount(){
+      (Platform.OS === 'android') && PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
+          .then(grantedPreviously => {
+
+              const rationale = {
+                  title: 'Location Access',
+                  message: 'Need for detect your location to select location nearby you easily',
+                  buttonNeutral: 'Ask Me Later',
+                  buttonNegative: 'Cancel',
+                  buttonPositive: 'OK'
+              };
+
+              if (!grantedPreviously) {
+                  PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, rationale)
+                      .then(granted => {
+                          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                              console.log('permission granted');
+                          } else {
+                            console.log('permission rejected');
+                          }
+                      }).catch( e => console.log(e))
+              }
+          }).catch(e => console.log(e))
+    }
+
+    getLocation= event => {
+        navigator.geolocation.getCurrentPosition(
+         (position) => {
+            this.setState({
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            })
+         },
+        (error) => {
+          alert(JSON.stringify(error));
+          console.log(JSON.stringify(error));
+        },
+        {enableHighAccuracy: true, timeout: 6000}
+       )
+    }
+
     render() {
         return (
             <View style={{flex: 1}}>
@@ -36,25 +78,15 @@ export default class App extends Component {
                   javaScriptEnabled
                   source={{html, baseUrl: 'Welcome/'}}
                   style={{height: '90%'}}
-                  onMessage={(m)=> {
+                  onMessage={(event)=> {
                     console.warn('On Message Tiggered');
+                    this.getLocation(event);
+
                   }}
                   onNavigationStateChange={event =>{
                     console.warn(event);
-                    if(!event.loading) {
-                      navigator.geolocation.getCurrentPosition(
-                       (position) => {
-                          this.setState({
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude
-                          })
-                       },
-                      (error) => {
-                        alert(JSON.stringify(error));
-                        console.log(JSON.stringify(error));
-                      },
-                      {enableHighAccuracy: true, timeout: 6000}
-                     )
+                    if(!event.loading && Platform.OS !== 'ios') {
+                      this.getLocation(event);
                     }
                   }
 
