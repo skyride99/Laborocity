@@ -14,8 +14,9 @@ const html = `
         </div>
     </body >
     <script>
+
       function myFunction(){
-        window.postMessage("Hello React","*")
+        window.location.hash = false;
       }
     </script>
     </html>
@@ -28,53 +29,36 @@ export default class App extends Component {
       longitude: ''
     }
 
-    componentDidMount(){
-      PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION)
-          .then(grantedPreviously => {
-
-              const rationale = {
-                  title: 'Location Access',
-                  message: 'Need for detect your location to select location nearby you easily',
-                  buttonNeutral: 'Ask Me Later',
-                  buttonNegative: 'Cancel',
-                  buttonPositive: 'OK'
-              };
-
-              if (!grantedPreviously) {
-                  PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, rationale)
-                      .then(granted => {
-                          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-                              console.log('permission granted');
-                          } else {
-                            console.log('permission rejected');
-                          }
-                      }).catch( e => console.log(e))
-              }
-          }).catch(e => console.log(e))
-    }
-
-    onMessage = (m)=> {
-      navigator.geolocation.getCurrentPosition(
-       (position) => {
-          this.setState({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          })
-       },
-      (error) => {
-        alert(JSON.stringify(error));
-        console.log(JSON.stringify(error));
-      },
-      {enableHighAccuracy: true, timeout: 6000}
-     )}
-
     render() {
         return (
             <View style={{flex: 1}}>
               <WebView
+                  javaScriptEnabled
                   source={{html, baseUrl: 'Welcome/'}}
                   style={{height: '90%'}}
-                  onMessage={m => this.onMessage(m) }
+                  onMessage={(m)=> {
+                    console.warn('On Message Tiggered');
+                  }}
+                  onNavigationStateChange={event =>{
+                    console.warn(event);
+                    if(!event.loading) {
+                      navigator.geolocation.getCurrentPosition(
+                       (position) => {
+                          this.setState({
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                          })
+                       },
+                      (error) => {
+                        alert(JSON.stringify(error));
+                        console.log(JSON.stringify(error));
+                      },
+                      {enableHighAccuracy: true, timeout: 6000}
+                     )
+                    }
+                  }
+
+                  }
               />
             <View style={{height: '10%'}}>
                 <Text h4> Longitude: {this.state.longitude}</Text>
